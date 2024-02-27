@@ -1,28 +1,34 @@
 rm(list=ls())
 
-library(tidycensus)
-library(tigris)
-options(tigris_use_cache = TRUE)
+library(tidyr)
+# library(tidycensus)
+# library(tigris)
+# options(tigris_use_cache = TRUE)
 library(sf)
-library(tmap)
 library(leaflet)
+library(leaflet.providers)
+library(tidygeocoder)
 
 ## define data directory
-datadir <- 'C:/Users/dhardy/Dropbox/r_data/research_sites'
+datadir <- '/Users/dhardy/Dropbox/r_data/research_sites'
 
-st <- get_decennial(geography = 'state', variables = 'P001001', geometry = TRUE)
+addr <- c('Sapelo Island, GA', 'Atlanta, GA', 'Charlston, SC', 'Rolling Fork, MS')
+desc <- c('Racial coastal formation',  'Socio-ecological segregation', 'Conservation justice', 'Climate justice')
+# lbl <- c('Lowcountry conservation', 'Coastal vulnerability', 'Urban watersheds')
 
-sites <- st_read(file.path(datadir, 'research_sites.geojson'))
+rs <- data.frame(desc, addr)
 
-desc <- c('Lowcountry conservation justice', 'Racial coastal formation',  'Urban socio-ecological segregation')
-lbl <- c('Lowcountry conservation', 'Coastal vulnerability', 'Urban watersheds')
-  
-m <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-  #addTiles(group = 'OpenStreetMap') %>%
-  addProviderTiles(providers$Stamen.TerrainBackground) %>%
-  setView(lng = -82, lat = 33, zoom = 6) %>%
+geo.rs <- rs %>%
+  geocode(addr, method = 'arcgis', lat = latitude , long = longitude) %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+                     crs = 4326, agr = "constant")
+
+leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  # addTiles(group = 'OpenStreetMap') %>%
+  addProviderTiles(providers$Stadia.StamenWatercolor) %>%
+  setView(lng = -84, lat = 33, zoom = 6) %>%
   #addMarkers(group = 'Research Sites', data = sites) %>%
-  addMarkers(group = 'Research Locations', data = sites, 
+  addMarkers(group = 'Research Locations', data = geo.rs, 
              # popup = desc, 
              label = desc, 
              labelOptions = labelOptions(noHide = T, direction = "right",
@@ -35,5 +41,6 @@ m <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
                                            "border-color" = "rgba(0,0,0,0.5)"
                                            ))) %>%
   addScaleBar('bottomright')
-m
+
+
 
