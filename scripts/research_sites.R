@@ -25,7 +25,7 @@ geo.rs <- rs %>%
 
 m <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   # addTiles(group = 'OpenStreetMap') %>%
-  addProviderTiles(providers$Stadia.Outdoors) %>%
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   setView(lng = -84, lat = 33, zoom = 6) %>%
   #addMarkers(group = 'Research Sites', data = sites) %>%
   addMarkers(group = 'Research Locations', data = geo.rs, 
@@ -44,9 +44,11 @@ m <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
 m
 
 ## save html to png
-library(htmlwidgets)
-library(mapshot)
-saveWidget(m, paste0(datadir, "temp.html"), selfcontained = FALSE)
-webshot("temp.html", file = "Rplot.png",
-        cliprect = "viewport")
+# library(htmlwidgets)
+library(mapview)
+# saveWidget(m, paste0(datadir, "/temp.html"), selfcontained = FALSE)
+mapshot(m, file = paste0(datadir, "/research-sites.png"),
+        cliprect = "viewport",
+        remove_controls = c("zoomControl", "layersControl", "homeButton", "scaleBar",
+                            "drawToolbar", "easyButton"))
 
